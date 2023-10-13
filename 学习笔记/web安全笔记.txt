@@ -50,7 +50,15 @@
 		数据库用户：user()
 		操作系统：@@version_compile_os
 	数据注入：
-		同数据库(MySql)-->	高版本（5.0以上）可用数据库表视图，如information_schema.tables(https://zhuanlan.zhihu.com/p/438772250)
+		同数据库(MySql)-->	高版本（5.0以上）可用数据库表视图有据查询，如information_schema.tables;  (https://zhuanlan.zhihu.com/p/438772250)
 							低版本 暴力查询或结合读取查询
 	group_concat(a),可以把a字段的所有值合并起来，如a字段下有值'username'、'password'、'45'、'789'，则输出username，password，45，789
-	
+     
+2023.10.11 MySql注入
+	文件读取操作
+		load_file('xxxxxxx')	读取函数	
+		into outfile 或 into dumpfile 写入函数
+		
+	把注入语句中的'xxxxxxx'字符串换成16进制可以绕过某些简单的SQL注入过滤器和php魔法引号；
+	MySql的关键字不区分大小写，可以利用这个绕过简单的关键词过滤，如select可以改成SelecT；大多数DBMS（数据库管理系统）对于SQL语句的关键字和标识符是不区分大小写的
+		
