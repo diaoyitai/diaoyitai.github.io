@@ -61,4 +61,16 @@
 		
 	把注入语句中的'xxxxxxx'字符串换成16进制可以绕过某些简单的SQL注入过滤器和php魔法引号；
 	MySql的关键字不区分大小写，可以利用这个绕过简单的关键词过滤，如select可以改成SelecT；大多数DBMS（数据库管理系统）对于SQL语句的关键字和标识符是不区分大小写的
+
+2023.10.17 
+	搜索注入
+		select * from user where name like '%xiaodi%'；用到SQL的模糊查询，%是通配符
+
+2023.11.08
+	宽字节注入 %DF' ->到php代码转义 -> %DF\' ->url就变成 %DF%5C%27 倘若网站是GBK数据库也用GBK，%DF%5C就是生僻字衰  ->到数据库就变成  衰' 此时引号成功注入sql语句中
+	SQL盲注
+		报错回显 https://bbs.huaweicloud.com/blogs/392084
+		延时盲注
+		
+	
 		
