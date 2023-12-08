@@ -71,6 +71,18 @@
 	SQL盲注
 		报错回显 https://bbs.huaweicloud.com/blogs/392084
 		延时盲注
+		布尔盲注	指页面只返回正确和错误两种结果，不回显任何信息；这时候可以注入and xxxx命令猜数据库的敏感信息，猜对页面则正常显示返回正确，猜错了则返回错误页面；如先猜数据库名字的长度？猜数据库名字第一位是？第二位是？
 		
+2023.11.18
+	二次注入：
+	目标：更改xiaomi的密码为88888888
+	注册页面注册 账号名为xiaomi'# 密码为1231321（随便填）
+	接着进入账号xiaomi'# 更改密码为88888888 此时后台的sql语句就变成 update password='88888888' where username='xiaomi' #' and password='1231321'
+	此时，橙色的语句就被注释掉了，即该语句把xiaomi的密码改了而xiaomi'#的密码不变
 	
+	堆叠注入：
+	就是利用;号写多个sql语句，有局限性，有些数据库支持执行多个语句，有些不行
+
+xss获取cookie，http://127.0.0.1/DVWA/vulnerabilities/xss_r/?name=<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>
+利用xss漏洞，受害者点击链接就会访问目标网站，并且会加载<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>这段代码，此时hacker.js就可以获取受害者在目标网站的cookie，并将cookie发送到我的网站。
 		
