@@ -82,7 +82,10 @@
 	
 	堆叠注入：
 	就是利用;号写多个sql语句，有局限性，有些数据库支持执行多个语句，有些不行
-
+	
+	执行注释内的语句：
+	select version（）,/*!50554 now（）,*/user（）；若版本大于50554则会执行
+	select version（）,/*!now（）,*/user（）；如果省略版本号，则都会执行
 
 ---------------------------
 	xss获取cookie，http://127.0.0.1/DVWA/vulnerabilities/xss_r/?name=<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>
@@ -120,3 +123,5 @@
 	”1.php “、”1.php.“第一个，系统会强制把后面的空格去掉变成1.php，第二个，系统不允许这样命名，也会变成1.php。所以这两个可以尝试绕过代码的过滤。
 	
 	必须是windows，必须是php，如1.php::$DATA，这样不会检测后缀名，并且上传后的文件名仍然是1.php。适合绕过黑名单
+	对于任意整数 
+
