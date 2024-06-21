@@ -111,7 +111,7 @@ https://www.cnblogs.com/SCHAOGES/p/10889654.html
 
 单引号'转义/'时可使用
 
-宽字节注入 %DF' ->到php代码转义 -> %DF\' ->url就变成 %DF%5C%27 倘若网站是GBK数据库也用GBK，%DF%5C就是生僻字衰  ->到数据库就变成  衰' 此时引号成功注入sql语句中
+宽字节注入 %DF' ->到php代码转义 -> %DF\\' ->url就变成 %DF%5C%27 倘若网站是GBK数据库也用GBK，%DF%5C就是生僻字衰  ->到数据库就变成  衰' 此时引号成功注入sql语句中
 
 ​	SQL盲注
 ​		报错回显 https://bbs.huaweicloud.com/blogs/392084
