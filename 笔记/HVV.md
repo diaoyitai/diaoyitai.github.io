@@ -187,3 +187,41 @@ dFAXQV1LORcHRQtLRlwMAhwFTAg/M
 响应字节头：
 
 TxcWR1NNExZAD0ZaAWMIPAZjH1BFBFtHThcJSlUXWEd
+
+
+
+WebShell检测与查杀
+
+在线检测：[阿里云恶意文件检测平台 - 首页 (aliyun.com)](https://ti.aliyun.com/#/overview)、[SHELLPUB.COM在线查杀](https://n.shellpub.com/)河马在线查杀
+
+查杀：[http://www.d99net.net﻿](http://www.d99net.net/) D盾（只支持W）
+
+[https://www.shellpub.com](https://www.shellpub.com/) 河马（支持W、L、M）
+
+
+
+##### windows和linux查找天内被修改的.jsp文件
+
+power shell
+
+Get-ChildItem -Path "C:\phpStudy\PHPTutorial\WWW\DVWA" -Recurse -Filter "*.php" | Where-Object { $_.LastWriteTime -ge (Get-Date).AddDays(-1) }
+
+linux
+
+find /path/to/your/webapp -name "*.jsp" -mtime -1
+
+
+
+##### windows和linux查找一天内被访问过的.jsp文件
+
+Get-ChildItem -Path "C:\phpStudy\PHPTutorial\WWW\DVWA" -Recurse -Filter "*.jsp" | Where-Object { $_.LastAccessTime -ge (Get-Date).AddDays(-1) }
+
+
+
+find /path/to/your/webapp -name "*.jsp" -atime -1
+
+
+
+java内存马查杀工具
+
+[c0ny1/java-memshell-scanner: 通过jsp脚本扫描java web Filter/Servlet型内存马 (github.com)](https://github.com/c0ny1/java-memshell-scanner)
