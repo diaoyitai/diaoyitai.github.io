@@ -54,6 +54,8 @@ fofa快速找登录口
 
 “大兴机场"&country="CN"&&region!="HK"&&region!="TW"&&region!="MO"&&(title="登录"‖title="系统"‖title-="后台"‖title="平台"‖tite="管理"‖title-="入口")
 
+(title="登录" || title="系统" || title="后台" || title="平台" || title="管理" || title="入口") && country!="CN"
+
 “大兴机场”&&(app="泛微-协同办公OA"‖app="用友-GRP.U8"‖app="用友-U8"‖app="用友-UFIDA-NC"‖app="致远互联-OA"‖app="TDXK-通达OA"‖app="Landray-OA系统“）
 
 
