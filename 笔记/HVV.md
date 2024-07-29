@@ -74,6 +74,9 @@ fofa快速找登录口
 
 fastjson漏洞（java组件）
 
+1. Fastjson提供了反序列化功能，允许用户在输入JSON串时通过“@type”键对应的value指定任意反序列化类名；
+2. Fastjson自定义的反序列化机制会使用反射生成上述指定类的实例化对象，并自动调用该对象的setter方法及部分getter方法。
+
 fastjsonPOC合集：[safe6Sec/Fastjson: Fastjson姿势技巧集合 (github.com)](https://github.com/safe6Sec/Fastjson)
 
 POC
@@ -208,7 +211,7 @@ power shell
 
 Get-ChildItem -Path "C:\phpStudy\PHPTutorial\WWW\DVWA" -Recurse -Filter "*.php" | Where-Object { $_.LastWriteTime -ge (Get-Date).AddDays(-1) }
 
-linux
+linux 
 
 find /path/to/your/webapp -name "*.jsp" -mtime -1
 

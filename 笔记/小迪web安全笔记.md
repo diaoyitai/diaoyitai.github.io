@@ -801,3 +801,49 @@ net group "Domain Controllers" /domain 查询域控制器
 
 在靶机运行procdump.exe(这是微软官方的)生成lsass.dmp，再把这个文件拉到自己的电脑上配合Mimikatz破解出密码，若Mimikatz直接在靶机运行可能会被杀
 
+
+
+隧道技术
+
+代理和隧道的区别？
+
+代理是为了解决网络通讯问题，隧道是一种绕过端口或协议屏蔽的通信方式。
+
+三种常用隧道技术
+
+网络层：IPV6隧道、icmp隧道
+
+传输层：TCP隧道、UDP隧道、常规端口转发
+
+应用层：SSH隧道、http/s隧道、DNS隧道
+
+
+
+测试连通性
+
+传输层TCP：nc 	telnet
+
+应用层http：curl
+
+网络层ICMP：ping命令
+
+应用层DNS：nslookup和dig，一个windows一个linux
+
+
+
+icmp隧道（pingtunnel）
+
+pingtunnel是把tcp/udp/sock5流量伪装成icmp流量进行转发的工具
+-p##表示连接icmp隧道另一端的机器IP（即pingtunnel服务端)
+-lp##表示需要监听的本地tcp端口
+-da##指定需要转发的机器的IP（即目标内网某一机器的内网IP）
+-dp##指定需要转发的机器的端口（即目标内网某一机器的内网端口)
+-X##设置连接的密码
+Webserver: ./ptunnel -x xiaodi
+Hacker xiaodi: ./ptunnel -p 192.168.76.150 -lp 1080 -da
+192.168.33.33-dp3389-x xiaodi #转发的3389请求数据给本地1080
+
+
+
+
+
